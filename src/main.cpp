@@ -11,34 +11,34 @@
 
 using namespace std;
 
-#define VM_NUM 5 //È¨ÖµÊıÁ¿
-#define BODY_NUM 100 //Ã¿´ú¸öÌåµÄÊıÁ¿
-#define PARENT_NUM sqrt(BODY_NUM) //Ã¿´ú¸öÌåÖĞ¸¸Ç×µÄÊıÁ¿
-#define CHILD_NUM (BODY_NUM - PARENT_NUM) //Ã¿´ú¸öÌåÖĞº¢×ÓµÄÊıÁ¿
-#define EXPAND 2000 //À©´ó±¶Êı
-#define RANGE_RATIO 0.8 //·¶Î§±ÈÀı
+#define VM_NUM 5 //æƒå€¼æ•°é‡
+#define BODY_NUM 100 //æ¯ä»£ä¸ªä½“çš„æ•°é‡
+#define PARENT_NUM sqrt(BODY_NUM) //æ¯ä»£ä¸ªä½“ä¸­çˆ¶äº²çš„æ•°é‡
+#define CHILD_NUM (BODY_NUM - PARENT_NUM) //æ¯ä»£ä¸ªä½“ä¸­å­©å­çš„æ•°é‡
+#define EXPAND 2000 //æ‰©å¤§å€æ•°
+#define RANGE_RATIO 0.8 //èŒƒå›´æ¯”ä¾‹
 
-#define MAX_GEN_NUM 1000 //×î´óµÄÒÅ´«´úÊı
+#define MAX_GEN_NUM 1000 //æœ€å¤§çš„é—ä¼ ä»£æ•°
 
-//¶ÔÓÚÓÃ»§ÒÑ·ÃÎÊµÄÊÜ»¶Ó­µÄÆ·ÅÆÏµÊı£¬Ä¿Ç°Ã»ÓĞÌØÊâº¬Òå£¬»¹ÓÃ²»ÉÏ
+//å¯¹äºç”¨æˆ·å·²è®¿é—®çš„å—æ¬¢è¿çš„å“ç‰Œç³»æ•°ï¼Œç›®å‰æ²¡æœ‰ç‰¹æ®Šå«ä¹‰ï¼Œè¿˜ç”¨ä¸ä¸Š
 #define ALPHA 0.5
 #define BETA  0.5
 
-#define PM 0.2 //»ùÒò±äÒìÂÊ
-#define PC 0.8  //È¾É«Ìå½»²æÂÊ
+#define PM 0.2 //åŸºå› å˜å¼‚ç‡
+#define PC 0.8  //æŸ“è‰²ä½“äº¤å‰ç‡
 
-#define NOT_VAR_GENE_NUM 0 //²»²ÎÓë±äÒìµÄ»ùÒòÊı£¬Ö÷ÒªÊÇ¿¼ÂÇ¸ßÎ»»ùÒòÈô±äÒì»á²úÉúºÜ²îµÄ¸öÌå
+#define NOT_VAR_GENE_NUM 0 //ä¸å‚ä¸å˜å¼‚çš„åŸºå› æ•°ï¼Œä¸»è¦æ˜¯è€ƒè™‘é«˜ä½åŸºå› è‹¥å˜å¼‚ä¼šäº§ç”Ÿå¾ˆå·®çš„ä¸ªä½“
 
 enum
 {
-	CLICK = 0, //µã»÷	
-	BUY = 1, //¹ºÂò
-	COLLECT = 2, //ÊÕ²Ø
-	SHOP_CART = 3, //¹ºÎï³µ	
-	WEL_BRAND = 4 //ÊÜ»¶Ó­Æ·ÅÆ
+	CLICK = 0, //ç‚¹å‡»
+	BUY = 1, //è´­ä¹°
+	COLLECT = 2, //æ”¶è—
+	SHOP_CART = 3, //è´­ç‰©è½¦
+	WEL_BRAND = 4 //å—æ¬¢è¿å“ç‰Œ
 };
 
-//ÈÕÆÚ½á¹¹£¬°üÀ¨ÔÂ·İºÍÌìÊı¼´¿É
+//æ—¥æœŸç»“æ„ï¼ŒåŒ…æ‹¬æœˆä»½å’Œå¤©æ•°å³å¯
 typedef struct _visit_date
 {
 	BYTE mon;
@@ -46,66 +46,66 @@ typedef struct _visit_date
 
 }VISIT_DATE, *PVISIT_DATE;
 
-//ÌìÃ¨µÄÈÕÖ¾½á¹¹
+//å¤©çŒ«çš„æ—¥å¿—ç»“æ„
 typedef struct _tm_log
 {
-	ULONG user_id; //ÓÃ»§ID
-	ULONG brand_id; //Æ·ÅÆID
-	BYTE type; //ÓÃ»§ĞĞÎª0£ºµã»÷£¬1£º¹ºÂò£¬2£ºÊÕ²Ø£¬3£º¹ºÎï³µ
-	VISIT_DATE visit_date; //ÓÃ»§·ÃÎÊµÄÈÕÆÚ
+	ULONG user_id; //ç”¨æˆ·ID
+	ULONG brand_id; //å“ç‰ŒID
+	BYTE type; //ç”¨æˆ·è¡Œä¸º0ï¼šç‚¹å‡»ï¼Œ1ï¼šè´­ä¹°ï¼Œ2ï¼šæ”¶è—ï¼Œ3ï¼šè´­ç‰©è½¦
+	VISIT_DATE visit_date; //ç”¨æˆ·è®¿é—®çš„æ—¥æœŸ
 
 }TM_LOG, *PTM_LOG;
 
-//ÓÃ»§µÄÈÕÖ¾½á¹¹
+//ç”¨æˆ·çš„æ—¥å¿—ç»“æ„
 typedef struct _user_log
-{	
-	ULONG brand_id; //Æ·ÅÆID
-	BYTE type; //ÓÃ»§ĞĞÎª0£ºµã»÷£¬1£º¹ºÂò£¬2£ºÊÕ²Ø£¬3£º¹ºÎï³µ
-	VISIT_DATE visit_date; //ÓÃ»§·ÃÎÊµÄÈÕÆÚ
+{
+	ULONG brand_id; //å“ç‰ŒID
+	BYTE type; //ç”¨æˆ·è¡Œä¸º0ï¼šç‚¹å‡»ï¼Œ1ï¼šè´­ä¹°ï¼Œ2ï¼šæ”¶è—ï¼Œ3ï¼šè´­ç‰©è½¦
+	VISIT_DATE visit_date; //ç”¨æˆ·è®¿é—®çš„æ—¥æœŸ
 
 }USER_LOG, *PUSER_LOG;
 
 typedef vector<USER_LOG> USER_LOGS;
 
-//Æ·ÅÆÈÕÖ¾½á¹¹
+//å“ç‰Œæ—¥å¿—ç»“æ„
 typedef struct _brand_log
 {
-	ULONG user_id; //ÓÃ»§id;
-	BYTE type; //ÓÃ»§ĞĞÎª0£ºµã»÷£¬1£º¹ºÂò£¬2£ºÊÕ²Ø£¬3£º¹ºÎï³µ
-	VISIT_DATE visit_date; //ÓÃ»§·ÃÎÊµÄÈÕÆÚ
+	ULONG user_id; //ç”¨æˆ·id;
+	BYTE type; //ç”¨æˆ·è¡Œä¸º0ï¼šç‚¹å‡»ï¼Œ1ï¼šè´­ä¹°ï¼Œ2ï¼šæ”¶è—ï¼Œ3ï¼šè´­ç‰©è½¦
+	VISIT_DATE visit_date; //ç”¨æˆ·è®¿é—®çš„æ—¥æœŸ
 
 }BRAND_LOG, *PBRAND_LOG;
 
-//Æ·ÅÆµÄ¼ÛÖµ½á¹¹
+//å“ç‰Œçš„ä»·å€¼ç»“æ„
 typedef struct _brand_value
 {
-	ULONG id; //Æ·ÅÆµÄid
-	LONG64 value; //Æ·ÅÆµÄ¼ÛÖµ
-	bool visit; //´ËÆ·ÅÆÊÇ·ñ±»ÓÃ»§·ÃÎÊ¹ı
+	ULONG id; //å“ç‰Œçš„id
+	LONG64 value; //å“ç‰Œçš„ä»·å€¼
+	bool visit; //æ­¤å“ç‰Œæ˜¯å¦è¢«ç”¨æˆ·è®¿é—®è¿‡
 
 }BRAND_VALUE, *PBRAND_VALUE;
 
 typedef struct _id_f1
 {
-	ULONG body_id; // ¸öÌåid
-	float p_val; //×¼È·ÂÊ
-	float r_val; //ÕÙ»ØÂÊ
-	float f1_val; //¸öÌåµÄF1Öµ
+	ULONG body_id; // ä¸ªä½“id
+	float p_val; //å‡†ç¡®ç‡
+	float r_val; //å¬å›ç‡
+	float f1_val; //ä¸ªä½“çš„F1å€¼
 
 }ID_F1, *PID_F1;
 
 typedef struct _user_value
 {
-	ULONG user_id; //ÓÃ»§id
-	ULONG val; //ÓÃ»§¼ÛÖµ
+	ULONG user_id; //ç”¨æˆ·id
+	ULONG val; //ç”¨æˆ·ä»·å€¼
 
 }USER_VALUE, *PUSER_VALUE;
 
-//Õâ¸öÆ·ÅÆµÄ¼ÛÖµºÍÉÏÎÄ²»Í¬µÄÊÇ£ºÉÏÎÄÊÇÍ³¼ÆËùÓĞÓÃ»§µÄ£¬ÕâÀïÊÇÕë¶ÔÄ³¸öÓÃ»§µÄ
+//è¿™ä¸ªå“ç‰Œçš„ä»·å€¼å’Œä¸Šæ–‡ä¸åŒçš„æ˜¯ï¼šä¸Šæ–‡æ˜¯ç»Ÿè®¡æ‰€æœ‰ç”¨æˆ·çš„ï¼Œè¿™é‡Œæ˜¯é’ˆå¯¹æŸä¸ªç”¨æˆ·çš„
 typedef struct _brand_value_ex
 {
-	ULONG id; //Æ·ÅÆµÄid
-	ULONG value; //Æ·ÅÆµÄ¼ÛÖµ
+	ULONG id; //å“ç‰Œçš„id
+	ULONG value; //å“ç‰Œçš„ä»·å€¼
 
 }BRAND_VALUE_EX, *PBRAND_VALUE_EX;
 
@@ -121,45 +121,45 @@ typedef vector<BRAND_VALUE_EX> BRANDS_VALUE_EX;
 typedef vector<BRAND_LOG> BRAND_LOGS;
 typedef map<ULONG, BRANDS_VALUE_EX> USERS_BRANDS;
 
-vector<USER_BUY_RAT> users_buy_rat; //ÓÃ»§¹ºÂòÂÊ
+vector<USER_BUY_RAT> users_buy_rat; //ç”¨æˆ·è´­ä¹°ç‡
 
-const VISIT_DATE divi_date = {7, 15}; //7ÔÂ15ÈÕÎª·ÃÎÊÈÕÆÚµÄ·Ö½çÏß£¬ÔÚ´ËÈÕÆÚÇ°£¨°üÀ¨´ËÈÕÆÚ£©ÎªÔ¤²âµÄ£¬ÔÚ´ËÈÕÆÚºóÎªÕæÊµµÄ
+const VISIT_DATE divi_date = {7, 15}; //7æœˆ15æ—¥ä¸ºè®¿é—®æ—¥æœŸçš„åˆ†ç•Œçº¿ï¼Œåœ¨æ­¤æ—¥æœŸå‰ï¼ˆåŒ…æ‹¬æ­¤æ—¥æœŸï¼‰ä¸ºé¢„æµ‹çš„ï¼Œåœ¨æ­¤æ—¥æœŸåä¸ºçœŸå®çš„
 
-map<ULONG, USER_LOGS> users_logs; //ËùÓĞÓÃ»§µÄÈÕÖ¾Êı¾İ£¬µÚÒ»ÏîÎªÓÃ»§ID,µÚ¶şÏîÎªÓÃ»§µÄĞĞÎªÈÕÖ¾
-map<ULONG, USER_LOGS> users_logs_pre; //ÎªÈÕÆÚ·Ö½çÏßÖ®Ç°µÄËùÓĞÓÃ»§ÈÕÖ¾
-map<ULONG, USER_LOGS> users_logs_rea; //ÎªÈÕÆÚ·Ö½çÏßÖ®ºóµÄËùÓĞÓÃ»§ÈÕÖ¾
+map<ULONG, USER_LOGS> users_logs; //æ‰€æœ‰ç”¨æˆ·çš„æ—¥å¿—æ•°æ®ï¼Œç¬¬ä¸€é¡¹ä¸ºç”¨æˆ·ID,ç¬¬äºŒé¡¹ä¸ºç”¨æˆ·çš„è¡Œä¸ºæ—¥å¿—
+map<ULONG, USER_LOGS> users_logs_pre; //ä¸ºæ—¥æœŸåˆ†ç•Œçº¿ä¹‹å‰çš„æ‰€æœ‰ç”¨æˆ·æ—¥å¿—
+map<ULONG, USER_LOGS> users_logs_rea; //ä¸ºæ—¥æœŸåˆ†ç•Œçº¿ä¹‹åçš„æ‰€æœ‰ç”¨æˆ·æ—¥å¿—
 
-map<ULONG, BRAND_LOGS> brands_logs; //ËùÓĞÆ·ÅÆµÄÈÕÖ¾Êı¾İ£¬µÚÒ»ÏîÎªÆ·ÅÆID,µÚ¶şÏîÎªÆ·ÅÆµÄÈÕÖ¾
-map<ULONG, BRAND_LOGS> brands_logs_pre; //ÎªÈÕÆÚ·Ö½çÏßÖ®Ç°µÄËùÓĞÆ·ÅÆÈÕÖ¾
-map<ULONG, BRAND_LOGS> brands_logs_rea; //ÎªÈÕÆÚ·Ö½çÏßÖ®ºóµÄËùÓĞÆ·ÅÆÈÕÖ¾
+map<ULONG, BRAND_LOGS> brands_logs; //æ‰€æœ‰å“ç‰Œçš„æ—¥å¿—æ•°æ®ï¼Œç¬¬ä¸€é¡¹ä¸ºå“ç‰ŒID,ç¬¬äºŒé¡¹ä¸ºå“ç‰Œçš„æ—¥å¿—
+map<ULONG, BRAND_LOGS> brands_logs_pre; //ä¸ºæ—¥æœŸåˆ†ç•Œçº¿ä¹‹å‰çš„æ‰€æœ‰å“ç‰Œæ—¥å¿—
+map<ULONG, BRAND_LOGS> brands_logs_rea; //ä¸ºæ—¥æœŸåˆ†ç•Œçº¿ä¹‹åçš„æ‰€æœ‰å“ç‰Œæ—¥å¿—
 
-map<ULONG, ULONGS> new_bodys; //ĞÂÒ»´ú¸öÌå
+map<ULONG, ULONGS> new_bodys; //æ–°ä¸€ä»£ä¸ªä½“
 
-ULONG Vm[VM_NUM] = {0, 2000, 3408, 3875, 4506}; //ÒÀ´ÎÎªµã»÷¡¢ÊÜ»¶Ó­Æ·ÅÆ¡¢ÊÕ²Ø¡¢¹ºÎï³µ¡¢¹ºÂòµÄÈ¨Öµ
-const BYTE type_Vm[VM_NUM] = {0, 4, 2, 3, 1}; //½¨Á¢·ÃÎÊÀàĞÍµ½Vm¼üÖµµÄÓ³Éä,0£ºµã»÷£¬1£º¹ºÂò£¬2£ºÊÕ²Ø£»3£º¹ºÎï³µ
-BYTE gene_num[VM_NUM-2] = {0}; //¸öÌåÖĞÈ¾É«ÌåĞèÒª±äÒìµÄ»ùÒòÊı£¬¼´Î»Êı
+ULONG Vm[VM_NUM] = {0, 2000, 3408, 3875, 4506}; //ä¾æ¬¡ä¸ºç‚¹å‡»ã€å—æ¬¢è¿å“ç‰Œã€æ”¶è—ã€è´­ç‰©è½¦ã€è´­ä¹°çš„æƒå€¼
+const BYTE type_Vm[VM_NUM] = {0, 4, 2, 3, 1}; //å»ºç«‹è®¿é—®ç±»å‹åˆ°Vmé”®å€¼çš„æ˜ å°„,0ï¼šç‚¹å‡»ï¼Œ1ï¼šè´­ä¹°ï¼Œ2ï¼šæ”¶è—ï¼›3ï¼šè´­ç‰©è½¦
+BYTE gene_num[VM_NUM-2] = {0}; //ä¸ªä½“ä¸­æŸ“è‰²ä½“éœ€è¦å˜å¼‚çš„åŸºå› æ•°ï¼Œå³ä½æ•°
 
-void classify_user_data(char *filename); //°Ñt_alibaba_data.csvÎÄ¼şÖĞµÄÊı¾İ½øĞĞ·ÖÀà´æ´¢
-void create_first_generation(ULONG body_num = BODY_NUM); //ÒÀ¾İVmÖµÉú³ÉµÚÒ»´ú¸öÌå
-void get_best_Vm(); //»ñµÃ×îºÃµÄÈ¨Öµ
-vector<BRAND_VALUE> get_top_brands_value(const ULONG *Vm_body); //»ñÈ¡¼ÛÖµ¿¿Ç°µÄÆ·ÅÆÁĞ±í
-bool get_Vm_body(ULONG gen_num, ULONG body_id, ULONG *Vm_body); //»ñÈ¡Ö¸¶¨´úÊıÖ¸¶¨¸öÌåµÄVmÖµ
-ID_F1 get_f1(ULONG gen_num, ULONG body_id); //»ñÈ¡Ö¸¶¨¸öÌåµÄF1Öµ
-vector<USER_VALUE> get_top_users_value(const ULONG *Vm_body, const vector<BRAND_VALUE> *pbrands_value); //»ñÈ¡¼ÛÖµ¿¿Ç°µÄÓÃ»§ÁĞ±í
-USERS_BRANDS get_top_users_brands(const ULONG *Vm_body, const vector<USER_VALUE> *users_value, const vector<BRAND_VALUE> *pbrands_value); //»ñÈ¡µÄ¼ÛÖµ¿¿Ç°µÄÓÃ»§¿ÉÄÜ»áÂòµÄÆ·ÅÆ
-float get_precision(const USERS_BRANDS *users_brands); //»ñÈ¡×¼È·ÂÊ
-float get_recall(const USERS_BRANDS *users_brands); //»ñÈ¡ÕÙ»ØÂÊ
-void create_next_generation(ULONG gen_num, vector<ID_F1> *ids_f1); //´´½¨ÏÂÒ»´ú¸öÌå
-map<ULONG, ULONGS> get_top_Vms(ULONG gen_num, vector<ID_F1> *ids_f1); //»ñÈ¡ÅÅÔÚÇ°ÃæµÄVm£¬µ±È»ÕâÀïVmµÄº¬ÒåÎª·¶Î§Öµ
-map<ULONG, ULONGS> get_var_champ(const map<ULONG, ULONGS> *top_Vms); //¶ÔÅÅÔÚÇ°ÃæµÄ¸öÌå½øĞĞ»ùÒò±äÒì
-void cross_champ(const map<ULONG, ULONGS> *var_top_Vms, ULONG gen_num); //½øĞĞ¸öÌå¼äÈ¾É«Ìå½»²æ²¢²úÉúÏÂÒ»´ú¸öÌå
-void write_gen_top_body_f1(ULONG gen_num, ID_F1 id_f1); //°ÑÃ¿Ò»´úµÄF1Öµ×î¸ßµÄ¸öÌå¼ÇÂ¼ÏÂÀ´
+void classify_user_data(char *filename); //æŠŠt_alibaba_data.csvæ–‡ä»¶ä¸­çš„æ•°æ®è¿›è¡Œåˆ†ç±»å­˜å‚¨
+void create_first_generation(ULONG body_num = BODY_NUM); //ä¾æ®Vmå€¼ç”Ÿæˆç¬¬ä¸€ä»£ä¸ªä½“
+void get_best_Vm(); //è·å¾—æœ€å¥½çš„æƒå€¼
+vector<BRAND_VALUE> get_top_brands_value(const ULONG *Vm_body); //è·å–ä»·å€¼é å‰çš„å“ç‰Œåˆ—è¡¨
+bool get_Vm_body(ULONG gen_num, ULONG body_id, ULONG *Vm_body); //è·å–æŒ‡å®šä»£æ•°æŒ‡å®šä¸ªä½“çš„Vmå€¼
+ID_F1 get_f1(ULONG gen_num, ULONG body_id); //è·å–æŒ‡å®šä¸ªä½“çš„F1å€¼
+vector<USER_VALUE> get_top_users_value(const ULONG *Vm_body, const vector<BRAND_VALUE> *pbrands_value); //è·å–ä»·å€¼é å‰çš„ç”¨æˆ·åˆ—è¡¨
+USERS_BRANDS get_top_users_brands(const ULONG *Vm_body, const vector<USER_VALUE> *users_value, const vector<BRAND_VALUE> *pbrands_value); //è·å–çš„ä»·å€¼é å‰çš„ç”¨æˆ·å¯èƒ½ä¼šä¹°çš„å“ç‰Œ
+float get_precision(const USERS_BRANDS *users_brands); //è·å–å‡†ç¡®ç‡
+float get_recall(const USERS_BRANDS *users_brands); //è·å–å¬å›ç‡
+void create_next_generation(ULONG gen_num, vector<ID_F1> *ids_f1); //åˆ›å»ºä¸‹ä¸€ä»£ä¸ªä½“
+map<ULONG, ULONGS> get_top_Vms(ULONG gen_num, vector<ID_F1> *ids_f1); //è·å–æ’åœ¨å‰é¢çš„Vmï¼Œå½“ç„¶è¿™é‡ŒVmçš„å«ä¹‰ä¸ºèŒƒå›´å€¼
+map<ULONG, ULONGS> get_var_champ(const map<ULONG, ULONGS> *top_Vms); //å¯¹æ’åœ¨å‰é¢çš„ä¸ªä½“è¿›è¡ŒåŸºå› å˜å¼‚
+void cross_champ(const map<ULONG, ULONGS> *var_top_Vms, ULONG gen_num); //è¿›è¡Œä¸ªä½“é—´æŸ“è‰²ä½“äº¤å‰å¹¶äº§ç”Ÿä¸‹ä¸€ä»£ä¸ªä½“
+void write_gen_top_body_f1(ULONG gen_num, ID_F1 id_f1); //æŠŠæ¯ä¸€ä»£çš„F1å€¼æœ€é«˜çš„ä¸ªä½“è®°å½•ä¸‹æ¥
 void get_best_Vm_ex();
 void get_users_buy_rat();
 int get_pre_brand_num(ULONG user_id, ULONG sum_brand_num);
-vector<USER_VALUE> get_top_users_brands_ex(const ULONG *Vm_body, const vector<BRAND_VALUE> *pbrands_value); //»ñÈ¡µÄ¼ÛÖµ¿¿Ç°µÄÓÃ»§¿ÉÄÜ»áÂòµÄÆ·ÅÆ
+vector<USER_VALUE> get_top_users_brands_ex(const ULONG *Vm_body, const vector<BRAND_VALUE> *pbrands_value); //è·å–çš„ä»·å€¼é å‰çš„ç”¨æˆ·å¯èƒ½ä¼šä¹°çš„å“ç‰Œ
 
-bool compare_user_visit_date(const USER_LOG &user_log1, const USER_LOG &user_log2) //°´ÕÕÈÕÆÚ£¨´ÓĞ¡µ½´ó£©ÅÅĞòµÄ»Øµ÷º¯Êı£¬²ÎÊı½á¹¹ÎªÓÃ»§ÈÕÖ¾
+bool compare_user_visit_date(const USER_LOG &user_log1, const USER_LOG &user_log2) //æŒ‰ç…§æ—¥æœŸï¼ˆä»å°åˆ°å¤§ï¼‰æ’åºçš„å›è°ƒå‡½æ•°ï¼Œå‚æ•°ç»“æ„ä¸ºç”¨æˆ·æ—¥å¿—
 {
 	if(user_log1.visit_date.mon< user_log2.visit_date.mon)
 		return true;
@@ -171,7 +171,7 @@ bool compare_user_visit_date(const USER_LOG &user_log1, const USER_LOG &user_log
 		return false;
 }
 
-bool compare_brand_visit_date(const BRAND_LOG &brand_log1, const BRAND_LOG &brand_log2) //°´ÕÕÈÕÆÚ£¨´ÓĞ¡µ½´ó£©ÅÅĞòµÄ»Øµ÷º¯Êı£¬²ÎÊı½á¹¹ÎªÆ·ÅÆÈÕÖ¾
+bool compare_brand_visit_date(const BRAND_LOG &brand_log1, const BRAND_LOG &brand_log2) //æŒ‰ç…§æ—¥æœŸï¼ˆä»å°åˆ°å¤§ï¼‰æ’åºçš„å›è°ƒå‡½æ•°ï¼Œå‚æ•°ç»“æ„ä¸ºå“ç‰Œæ—¥å¿—
 {
 	if(brand_log1.visit_date.mon< brand_log2.visit_date.mon)
 		return true;
@@ -183,32 +183,32 @@ bool compare_brand_visit_date(const BRAND_LOG &brand_log1, const BRAND_LOG &bran
 		return false;
 }
 
-bool compare_brand_id(const TM_LOG &tm_log1, const TM_LOG &tm_log2) //°´ÕÕÆ·ÅÆid£¨´ÓĞ¡µ½´ó£©ÅÅĞòµÄº¯Êı
+bool compare_brand_id(const TM_LOG &tm_log1, const TM_LOG &tm_log2) //æŒ‰ç…§å“ç‰Œidï¼ˆä»å°åˆ°å¤§ï¼‰æ’åºçš„å‡½æ•°
 {
 	return tm_log1.brand_id<tm_log2.brand_id;
 }
 
-bool compare_brand_id_ex(const USER_LOG &tm_log1, const USER_LOG &tm_log2) //°´ÕÕÆ·ÅÆid£¨´ÓĞ¡µ½´ó£©ÅÅĞòµÄº¯Êı,²ÎÊıÊÇÓÃ»§ÈÕÖ¾
+bool compare_brand_id_ex(const USER_LOG &tm_log1, const USER_LOG &tm_log2) //æŒ‰ç…§å“ç‰Œidï¼ˆä»å°åˆ°å¤§ï¼‰æ’åºçš„å‡½æ•°,å‚æ•°æ˜¯ç”¨æˆ·æ—¥å¿—
 {
 	return tm_log1.brand_id<tm_log2.brand_id;
 }
 
-bool compare_brand_value(const BRAND_VALUE brand_value1, const BRAND_VALUE brand_value2) //°´ÕÕÆ·ÅÆ¼ÛÖµ£¨´Ó´óµ½Ğ¡£©ÅÅĞò
+bool compare_brand_value(const BRAND_VALUE brand_value1, const BRAND_VALUE brand_value2) //æŒ‰ç…§å“ç‰Œä»·å€¼ï¼ˆä»å¤§åˆ°å°ï¼‰æ’åº
 {
 	return brand_value1.value>brand_value2.value;
 }
 
-bool compare_brand_value_ex(const BRAND_VALUE_EX brand_value_ex1, const BRAND_VALUE_EX brand_value_ex2) //°´ÕÕÆ·ÅÆ¼ÛÖµ£¨´Ó´óµ½Ğ¡£©ÅÅĞò£¬²ÎÊıÎªµ¥¸öÓÃ»§µÄÈÕÖ¾
+bool compare_brand_value_ex(const BRAND_VALUE_EX brand_value_ex1, const BRAND_VALUE_EX brand_value_ex2) //æŒ‰ç…§å“ç‰Œä»·å€¼ï¼ˆä»å¤§åˆ°å°ï¼‰æ’åºï¼Œå‚æ•°ä¸ºå•ä¸ªç”¨æˆ·çš„æ—¥å¿—
 {
 	return brand_value_ex1.value >brand_value_ex2.value;
 }
 
-bool compare_user_value(const USER_VALUE user_value1, const USER_VALUE user_value2) //°´ÕÕÓÃ»§¼ÛÖµ£¨´Ó´óµ½Ğ¡£©ÅÅĞò
+bool compare_user_value(const USER_VALUE user_value1, const USER_VALUE user_value2) //æŒ‰ç…§ç”¨æˆ·ä»·å€¼ï¼ˆä»å¤§åˆ°å°ï¼‰æ’åº
 {
 	return user_value1.val>user_value2.val;
 }
 
-bool compare_f1(const ID_F1 &id_f11, const ID_F1 &id_f12) //°Ñ´¦ÓÚÍ¬Ò»´úµÄËùÓĞ¸öÌå°´ÕÕF1Öµ´Ó´óµ½Ğ¡ÅÅĞò
+bool compare_f1(const ID_F1 &id_f11, const ID_F1 &id_f12) //æŠŠå¤„äºåŒä¸€ä»£çš„æ‰€æœ‰ä¸ªä½“æŒ‰ç…§F1å€¼ä»å¤§åˆ°å°æ’åº
 {
 	return id_f11.f1_val>id_f12.f1_val;
 }
@@ -221,7 +221,7 @@ bool find_wel_brands(vector<BRAND_VALUE>* brands_value, ULONG brand_id)
 		{
 			iter->visit = true;
 			return true;
-		}			
+		}
 	}
 	return false;
 }
@@ -301,68 +301,68 @@ ULONG get_bit_num(const ULONG &num)
 int main(int argc, char* argv[])
 {
 	char *filename = "t_alibaba_data.csv";
-	classify_user_data(filename); //ÏÈ°ÑÊı¾İÒÔÓÃ»§Îªµ¥Î»£¬°´ÕÕ·ÃÎÊÈÕÆÚ½øĞĞÅÅĞò	
+	classify_user_data(filename); //å…ˆæŠŠæ•°æ®ä»¥ç”¨æˆ·ä¸ºå•ä½ï¼ŒæŒ‰ç…§è®¿é—®æ—¥æœŸè¿›è¡Œæ’åº
 	get_users_buy_rat();
-	get_best_Vm(); //»ñµÃ×îºÃµÄÈ¨Öµ	
+	get_best_Vm(); //è·å¾—æœ€å¥½çš„æƒå€¼
 	//get_best_Vm_ex();
 	return 0;
 }
 
 void classify_user_data(char *filename)
-{	
+{
 	USER_LOG user_log;
 	memset(&user_log, 0, sizeof(USER_LOG));
 	ULONG user_id = 0, brand_id = 0, type = 0, mon = 0, day = 0;
-	ULONG temp_user_id = 0;	
+	ULONG temp_user_id = 0;
 	USER_LOGS user_logs;
 
-	FILE* file = fopen(filename, "r");	
+	FILE* file = fopen(filename, "r");
 
 	if(file &&!feof(file))
 	{
-		if(fscanf(file, "%lu,%lu,%u,%uÔÂ%uÈÕ", &user_id, &brand_id, &type, &mon, &day)!=5)
+		if(fscanf(file, "%lu,%lu,%u,%uæœˆ%uæ—¥", &user_id, &brand_id, &type, &mon, &day)!=5)
 		{
 			fclose(file);
 			return;
 		}
 		user_log.brand_id = brand_id, user_log.type = type, user_log.visit_date.mon = mon, user_log.visit_date.day = day;
-		user_logs.push_back(user_log); //´æ´¢µÚÒ»¸öÓÃ»§µÄµÚÒ»¸öĞĞÎªÈÕÖ¾
+		user_logs.push_back(user_log); //å­˜å‚¨ç¬¬ä¸€ä¸ªç”¨æˆ·çš„ç¬¬ä¸€ä¸ªè¡Œä¸ºæ—¥å¿—
 
-		temp_user_id = user_id;			
+		temp_user_id = user_id;
 	}
 	while(!feof(file))
-	{		
-		if(fscanf(file, "%lu,%lu,%u,%uÔÂ%uÈÕ", &user_id, &brand_id, &type, &mon, &day)!=5)
-		{			
+	{
+		if(fscanf(file, "%lu,%lu,%u,%uæœˆ%uæ—¥", &user_id, &brand_id, &type, &mon, &day)!=5)
+		{
 			break;
 		}
 
 		if(user_id != temp_user_id)
 		{
-			users_logs[temp_user_id] = user_logs; //´æ´¢ÖĞ¼äÓÃ»§µÄĞĞÎªÈÕÖ¾
+			users_logs[temp_user_id] = user_logs; //å­˜å‚¨ä¸­é—´ç”¨æˆ·çš„è¡Œä¸ºæ—¥å¿—
 			user_logs.clear();
 			temp_user_id = user_id;
 		}
 
 		user_log.brand_id = brand_id, user_log.type = type, user_log.visit_date.mon = mon, user_log.visit_date.day = day;
-		user_logs.push_back(user_log);		
-	}	
-	users_logs[temp_user_id] = user_logs; //´æ´¢×îºóÒ»¸öÓÃ»§µÄĞĞÎªÈÕÖ¾
+		user_logs.push_back(user_log);
+	}
+	users_logs[temp_user_id] = user_logs; //å­˜å‚¨æœ€åä¸€ä¸ªç”¨æˆ·çš„è¡Œä¸ºæ—¥å¿—
 
-	fclose(file);	
+	fclose(file);
 
 	for(map<ULONG, USER_LOGS>::iterator iter1 = users_logs.begin(); iter1!=users_logs.end(); iter1++)
 	{
-		sort(iter1->second.begin(), iter1->second.end(), compare_user_visit_date); //°´ÕÕÈÕÆÚ´ÓĞ¡µ½´ó½øĞĞÅÅĞò
+		sort(iter1->second.begin(), iter1->second.end(), compare_user_visit_date); //æŒ‰ç…§æ—¥æœŸä»å°åˆ°å¤§è¿›è¡Œæ’åº
 
 		/*char filename[MAX_PATH] = {0};
-		char user_id[10] = {0};		
+		char user_id[10] = {0};
 		_itoa(iter1->first, user_id, 10);
 		strcpy(filename, "users_logs\\sort_date\\"), strcat(filename, user_id), strcat(filename, ".txt");
 		FILE * file = fopen(filename, "w");
 		for(USER_LOGS::iterator iter2 = iter1->second.begin(); iter2!=iter1->second.end(); iter2++)
 		{
-			fprintf(file, "%d,%d,%d,%dÔÂ%dÈÕ\n", iter1->first, iter2->brand_id, iter2->type, iter2->visit_date.mon, iter2->visit_date.day);
+			fprintf(file, "%d,%d,%d,%dæœˆ%dæ—¥\n", iter1->first, iter2->brand_id, iter2->type, iter2->visit_date.mon, iter2->visit_date.day);
 		}
 		fclose(file);*/
 	}
@@ -372,7 +372,7 @@ void classify_user_data(char *filename)
 		USER_LOGS user_logs_pre, user_logs_rea;
 		for(USER_LOGS::iterator iter2 = iter1->second.begin(); iter2!=iter1->second.end(); iter2++)
 		{
-			if(compare_visit_date_ext(iter2->visit_date, divi_date)<=0) //°ÑÓÃ»§ÈÕÖ¾ÒÔdivi_dateÎª½çÏŞ·Ö³ÉÁ½²¿·Ö
+			if(compare_visit_date_ext(iter2->visit_date, divi_date)<=0) //æŠŠç”¨æˆ·æ—¥å¿—ä»¥divi_dateä¸ºç•Œé™åˆ†æˆä¸¤éƒ¨åˆ†
 			{
 				user_logs_pre.push_back(*iter2);
 			}
@@ -387,10 +387,10 @@ void classify_user_data(char *filename)
 			users_logs_rea[iter1->first] = user_logs_rea;
 	}
 
-	/***********ÒÔÏÂÊÇ¶ÔÆ·ÅÆid½øĞĞ·ÖÀà*******************************/
+	/***********ä»¥ä¸‹æ˜¯å¯¹å“ç‰Œidè¿›è¡Œåˆ†ç±»*******************************/
 	vector<TM_LOG> tm_logs;
 	for(iter1 = users_logs.begin(); iter1!=users_logs.end(); iter1++)
-	{		
+	{
 		for(USER_LOGS::iterator iter2 = iter1->second.begin(); iter2!=iter1->second.end(); iter2++)
 		{
 			TM_LOG temp_tm_log;
@@ -401,46 +401,46 @@ void classify_user_data(char *filename)
 			tm_logs.push_back(temp_tm_log);
 		}
 	}
-	sort(tm_logs.begin(), tm_logs.end(), compare_brand_id); //°´ÕÕÆ·ÅÆid´ÓĞ¡µ½´ó½øĞĞÅÅĞò
-		
+	sort(tm_logs.begin(), tm_logs.end(), compare_brand_id); //æŒ‰ç…§å“ç‰Œidä»å°åˆ°å¤§è¿›è¡Œæ’åº
+
 	BRAND_LOG brand_log;
-	memset(&brand_log, 0, sizeof(BRAND_LOG));	
-	ULONG temp_brand_id = 0;	
-	BRAND_LOGS brand_logs;	
+	memset(&brand_log, 0, sizeof(BRAND_LOG));
+	ULONG temp_brand_id = 0;
+	BRAND_LOGS brand_logs;
 
 	if(tm_logs.size()>0)
-	{		
+	{
 		brand_log.user_id = tm_logs[0].user_id, brand_log.type = tm_logs[0].type, brand_log.visit_date.mon = tm_logs[0].visit_date.mon, brand_log.visit_date.day = tm_logs[0].visit_date.day;
-		brand_logs.push_back(brand_log); //´æ´¢µÚÒ»¸öÆ·ÅÆµÄµÚÒ»¸öÓÃ»§ÈÕÖ¾
+		brand_logs.push_back(brand_log); //å­˜å‚¨ç¬¬ä¸€ä¸ªå“ç‰Œçš„ç¬¬ä¸€ä¸ªç”¨æˆ·æ—¥å¿—
 
-		temp_brand_id = tm_logs[0].brand_id;			
+		temp_brand_id = tm_logs[0].brand_id;
 	}
 	for(vector<TM_LOG>::iterator iter = tm_logs.begin()+1; iter!=tm_logs.end(); iter++)
-	{		
+	{
 		if(iter->brand_id != temp_brand_id)
 		{
-			brands_logs[temp_brand_id] = brand_logs; //´æ´¢ÖĞ¼äÆ·ÅÆµÄÈÕÖ¾
+			brands_logs[temp_brand_id] = brand_logs; //å­˜å‚¨ä¸­é—´å“ç‰Œçš„æ—¥å¿—
 			brand_logs.clear();
 			temp_brand_id = iter->brand_id;
 		}
 
 		brand_log.user_id = iter->user_id, brand_log.type = iter->type, brand_log.visit_date.mon = iter->visit_date.mon, brand_log.visit_date.day = iter->visit_date.day;
-		brand_logs.push_back(brand_log);		
-	}	
-	brands_logs[temp_brand_id] = brand_logs; //´æ´¢×îºóÒ»¸öÆ·ÅÆµÄÈÕÖ¾	
+		brand_logs.push_back(brand_log);
+	}
+	brands_logs[temp_brand_id] = brand_logs; //å­˜å‚¨æœ€åä¸€ä¸ªå“ç‰Œçš„æ—¥å¿—
 
 	for(map<ULONG, BRAND_LOGS>::iterator iter3 = brands_logs.begin(); iter3!=brands_logs.end(); iter3++)
 	{
-		sort(iter3->second.begin(), iter3->second.end(), compare_brand_visit_date); //°´ÕÕÈÕÆÚ´ÓĞ¡µ½´ó½øĞĞÅÅĞò
+		sort(iter3->second.begin(), iter3->second.end(), compare_brand_visit_date); //æŒ‰ç…§æ—¥æœŸä»å°åˆ°å¤§è¿›è¡Œæ’åº
 
 		/*char filename[MAX_PATH] = {0};
-		char brand_id[10] = {0};		
+		char brand_id[10] = {0};
 		_itoa(iter3->first, brand_id, 10);
 		strcpy(filename, "brands_logs\\sort_date\\"), strcat(filename, brand_id), strcat(filename, ".txt");
 		FILE * file = fopen(filename, "w");
 		for(BRAND_LOGS::iterator iter4 = iter3->second.begin(); iter4!=iter3->second.end(); iter4++)
 		{
-			fprintf(file, "%d,%d,%d,%dÔÂ%dÈÕ\n", iter4->user_id, iter3->first, iter4->type, iter4->visit_date.mon, iter4->visit_date.day);
+			fprintf(file, "%d,%d,%d,%dæœˆ%dæ—¥\n", iter4->user_id, iter3->first, iter4->type, iter4->visit_date.mon, iter4->visit_date.day);
 		}
 		fclose(file);*/
 	}
@@ -450,7 +450,7 @@ void classify_user_data(char *filename)
 		BRAND_LOGS brand_logs_pre, brand_logs_rea;
 		for(BRAND_LOGS::iterator iter4 = iter3->second.begin(); iter4!=iter3->second.end(); iter4++)
 		{
-			if(compare_visit_date_ext(iter4->visit_date, divi_date)<=0) //°ÑÆ·ÅÆÈÕÖ¾ÒÔdivi_dateÎª½çÏŞ·Ö³ÉÁ½²¿·Ö
+			if(compare_visit_date_ext(iter4->visit_date, divi_date)<=0) //æŠŠå“ç‰Œæ—¥å¿—ä»¥divi_dateä¸ºç•Œé™åˆ†æˆä¸¤éƒ¨åˆ†
 			{
 				brand_logs_pre.push_back(*iter4);
 			}
@@ -465,22 +465,22 @@ void classify_user_data(char *filename)
 			brands_logs_rea[iter3->first] = brand_logs_rea;
 	}
 
-	/*file = fopen("test4.txt", "w"); //Ö÷Òª¼ì²é¶ÁÈ¡µ½ÄÚ´æÖĞÊı¾İ¸ñÊ½ÊÇ·ñÕıÈ·
+	/*file = fopen("test4.txt", "w"); //ä¸»è¦æ£€æŸ¥è¯»å–åˆ°å†…å­˜ä¸­æ•°æ®æ ¼å¼æ˜¯å¦æ­£ç¡®
 	for(iter3 = brands_logs_pre.begin(); iter3!=brands_logs_pre.end(); iter3++)
 	{
 		for(BRAND_LOGS::iterator iter4 = iter3->second.begin(); iter4!=iter3->second.end(); iter4++)
 		{
-			fprintf(file, "%d,%d,%d,%dÔÂ%dÈÕ\n", iter4->user_id, iter3->first, iter4->type, iter4->visit_date.mon, iter4->visit_date.day);
+			fprintf(file, "%d,%d,%d,%dæœˆ%dæ—¥\n", iter4->user_id, iter3->first, iter4->type, iter4->visit_date.mon, iter4->visit_date.day);
 		}
 	}
 	fclose(file);
 
-	file = fopen("test5.txt", "w"); //Ö÷Òª¼ì²é¶ÁÈ¡µ½ÄÚ´æÖĞÊı¾İ¸ñÊ½ÊÇ·ñÕıÈ·
+	file = fopen("test5.txt", "w"); //ä¸»è¦æ£€æŸ¥è¯»å–åˆ°å†…å­˜ä¸­æ•°æ®æ ¼å¼æ˜¯å¦æ­£ç¡®
 	for(iter3 = brands_logs_rea.begin(); iter3!=brands_logs_rea.end(); iter3++)
 	{
 		for(BRAND_LOGS::iterator iter4 = iter3->second.begin(); iter4!=iter3->second.end(); iter4++)
 		{
-			fprintf(file, "%d,%d,%d,%dÔÂ%dÈÕ\n", iter4->user_id, iter3->first, iter4->type, iter4->visit_date.mon, iter4->visit_date.day);
+			fprintf(file, "%d,%d,%d,%dæœˆ%dæ—¥\n", iter4->user_id, iter3->first, iter4->type, iter4->visit_date.mon, iter4->visit_date.day);
 		}
 	}
 	fclose(file);*/
@@ -489,23 +489,23 @@ void classify_user_data(char *filename)
 }
 
 void create_first_generation(ULONG body_num)
-{		
+{
 	for(int i =0; i< VM_NUM; i++)
 	{
-		Vm[i] *= EXPAND; //ÏÈÀ©´óÈ¨Öµ		
+		Vm[i] *= EXPAND; //å…ˆæ‰©å¤§æƒå€¼
 	}
 
 	ULONG Vm_range[VM_NUM-2] = {0};
 	for(i = 1; i<VM_NUM-1; i++)
 	{
-		Vm_range[i-1] = (Vm[i+1] - Vm[i-1])/2;		
-		Vm_range[i-1] *= RANGE_RATIO; //È·¶¨·¶Î§´óĞ¡
+		Vm_range[i-1] = (Vm[i+1] - Vm[i-1])/2;
+		Vm_range[i-1] *= RANGE_RATIO; //ç¡®å®šèŒƒå›´å¤§å°
 		gene_num[i-1] = get_bit_num(Vm_range[i-1]) - NOT_VAR_GENE_NUM;
-	}	
-	
+	}
+
 	for(i = VM_NUM-2; i>0; i--)
-	{		
-		Vm[i] = (Vm[i] + Vm[i-1])/2; //ÖØĞÂµ÷ÕûVmÖµ£¬ÒÔ±ã¼ÓÉÏ·¶Î§ÖµÄÜÖ±½ÓµÃµ½È¨Öµ		
+	{
+		Vm[i] = (Vm[i] + Vm[i-1])/2; //é‡æ–°è°ƒæ•´Vmå€¼ï¼Œä»¥ä¾¿åŠ ä¸ŠèŒƒå›´å€¼èƒ½ç›´æ¥å¾—åˆ°æƒå€¼
 	}
 
 	FILE *file = NULL;
@@ -517,7 +517,7 @@ void create_first_generation(ULONG body_num)
 		file = fopen(filename, "w");
 		for(int j =0; j< VM_NUM-2; j++)
 		{
-			fprintf(file, "%d\n", rand()%Vm_range[j]); //°Ñ¸÷¸ö¸öÌåÖµĞ´ÈëÎÄ¼ş
+			fprintf(file, "%d\n", rand()%Vm_range[j]); //æŠŠå„ä¸ªä¸ªä½“å€¼å†™å…¥æ–‡ä»¶
 		}
 		fclose(file);
 	}
@@ -526,25 +526,25 @@ void create_first_generation(ULONG body_num)
 
 void get_best_Vm()
 {
-	create_first_generation(); //Éú³ÉµÚÒ»´ú¸öÌå
+	create_first_generation(); //ç”Ÿæˆç¬¬ä¸€ä»£ä¸ªä½“
 	for(int gen_num = 1; gen_num <= MAX_GEN_NUM; gen_num++)
 	{
 		printf("gen_num:\t%d\n", gen_num);
-		vector<ID_F1> ids_f1;		
+		vector<ID_F1> ids_f1;
 		for(int body_id = 1; body_id <= BODY_NUM; body_id++)
 		{
-			ID_F1 id_f1;			
-			id_f1 = get_f1(gen_num, body_id);			
+			ID_F1 id_f1;
+			id_f1 = get_f1(gen_num, body_id);
 
-			ids_f1.push_back(id_f1);			
+			ids_f1.push_back(id_f1);
 		}
 		sort(ids_f1.begin(), ids_f1.end(), compare_f1);
-		ids_f1.resize(sqrt(BODY_NUM)); //È¡Ç°sqrt(BODY_NUM)µÄÄ¿µÄÊÇÈÃÀ´Á½Á½½»²æ²úÉúÁ½¸ö¸öÌå²¢¼ÓÉÏ±¾Éí¸ÕºÃÎªBODY_NUM¸ö
+		ids_f1.resize(sqrt(BODY_NUM)); //å–å‰sqrt(BODY_NUM)çš„ç›®çš„æ˜¯è®©æ¥ä¸¤ä¸¤äº¤å‰äº§ç”Ÿä¸¤ä¸ªä¸ªä½“å¹¶åŠ ä¸Šæœ¬èº«åˆšå¥½ä¸ºBODY_NUMä¸ª
 
-		create_next_generation(gen_num, &ids_f1); //´´½¨ÏÂÒ»´ú¸öÌå
+		create_next_generation(gen_num, &ids_f1); //åˆ›å»ºä¸‹ä¸€ä»£ä¸ªä½“
 
-		write_gen_top_body_f1(gen_num, ids_f1[0]); //°ÑÃ¿Ò»´úµÄF1Öµ×î¸ßµÄ¸öÌå¼ÇÂ¼ÏÂÀ´
-	}	
+		write_gen_top_body_f1(gen_num, ids_f1[0]); //æŠŠæ¯ä¸€ä»£çš„F1å€¼æœ€é«˜çš„ä¸ªä½“è®°å½•ä¸‹æ¥
+	}
 	return;
 }
 
@@ -556,18 +556,18 @@ vector<BRAND_VALUE> get_top_brands_value(const ULONG *Vm_body)
 		BRAND_VALUE brand_value;
 		memset(&brand_value, 0, sizeof(BRAND_VALUE));
 		brand_value.id = iter1->first;
-		brand_value.visit = false; //³õÊ¼»¯Îª£º´ËÆ·ÅÆÃ»ÓĞ±»·ÃÎÊ¹ı
+		brand_value.visit = false; //åˆå§‹åŒ–ä¸ºï¼šæ­¤å“ç‰Œæ²¡æœ‰è¢«è®¿é—®è¿‡
 		for(BRAND_LOGS::iterator iter2 = iter1->second.begin(); iter2!=iter1->second.end(); iter2++)
-		{					
-			brand_value.value += Vm_body[type_Vm[iter2->type]]; //Æ·ÅÆµÄ¼ÛÖµ£¬±È½ÏºÏÀíµÃËã·¨¾ÍÊÇ°ÑËùÓĞÓë´ËÆ·ÅÆÓĞ¹ØµÄĞĞÎªÈ¨ÖµÇóºÍ
+		{
+			brand_value.value += Vm_body[type_Vm[iter2->type]]; //å“ç‰Œçš„ä»·å€¼ï¼Œæ¯”è¾ƒåˆç†å¾—ç®—æ³•å°±æ˜¯æŠŠæ‰€æœ‰ä¸æ­¤å“ç‰Œæœ‰å…³çš„è¡Œä¸ºæƒå€¼æ±‚å’Œ
 		}
 		brands_value.push_back(brand_value);
 	}
-	sort(brands_value.begin(), brands_value.end(), compare_brand_value); //°´ÕÕÆ·ÅÆ¼ÛÖµ´Ó´óµ½Ğ¡ÅÅĞò
+	sort(brands_value.begin(), brands_value.end(), compare_brand_value); //æŒ‰ç…§å“ç‰Œä»·å€¼ä»å¤§åˆ°å°æ’åº
 
-	int size = brands_value.size(); //ËùÓĞÆ·ÅÆ¸öÊı
-	int top = sqrt(size); //ÒªÑ¡È¡µÄÊÜ»¶Ó­Æ·ÅÆÊı
-	brands_value.resize(top); //È¡Ç°top¸ö
+	int size = brands_value.size(); //æ‰€æœ‰å“ç‰Œä¸ªæ•°
+	int top = sqrt(size); //è¦é€‰å–çš„å—æ¬¢è¿å“ç‰Œæ•°
+	brands_value.resize(top); //å–å‰topä¸ª
 	return brands_value;
 }
 
@@ -575,7 +575,7 @@ bool get_Vm_body(ULONG gen_num, ULONG body_id, ULONG *Vm_body)
 {
 	char filename[MAX_PATH] = {0};
 	char str_gen_num[10] = {0}, str_body_id[10] = {0};
-	strcpy(filename, "GA_record\\"), strcat(filename, "generation_"), _itoa(gen_num, str_gen_num, 10), strcat(filename, str_gen_num), 
+	strcpy(filename, "GA_record\\"), strcat(filename, "generation_"), _itoa(gen_num, str_gen_num, 10), strcat(filename, str_gen_num),
 	strcat(filename, "\\"), _itoa(body_id, str_body_id, 10), strcat(filename, str_body_id), strcat(filename, ".txt");
 
 	FILE* file = fopen(filename, "r");
@@ -585,18 +585,18 @@ bool get_Vm_body(ULONG gen_num, ULONG body_id, ULONG *Vm_body)
 		return false;
 	}
 
-	Vm_body[0] = Vm[0]; //µÚÒ»¸öVmÖµ²»±ä
+	Vm_body[0] = Vm[0]; //ç¬¬ä¸€ä¸ªVmå€¼ä¸å˜
 	for(int i = 1; i< VM_NUM-1; i++)
 	{
 		ULONG range = 0;
-		if(fscanf(file, "%d\n", &range) != 1)//¶ÁÈ¡µÄ¶¼ÊÇVmµÄ·¶Î§Öµ
+		if(fscanf(file, "%d\n", &range) != 1)//è¯»å–çš„éƒ½æ˜¯Vmçš„èŒƒå›´å€¼
 		{
 			printf("\"%s\" content is not correct!\n", filename);
 			return false;
 		}
-		Vm_body[i] = Vm[i] + range; //»ù´¡VmÖµ¼ÓÉÏ·¶Î§Öµ²ÅÊÇÄ³¸ö¸öÌåµÄÕæÕıVmÖµ
+		Vm_body[i] = Vm[i] + range; //åŸºç¡€Vmå€¼åŠ ä¸ŠèŒƒå›´å€¼æ‰æ˜¯æŸä¸ªä¸ªä½“çš„çœŸæ­£Vmå€¼
 	}
-	Vm_body[VM_NUM-1] = Vm[VM_NUM-1]; //×îºóÒ»¸öVmÖµÒ²²»±ä
+	Vm_body[VM_NUM-1] = Vm[VM_NUM-1]; //æœ€åä¸€ä¸ªVmå€¼ä¹Ÿä¸å˜
 
 	fclose(file);
 	return true;
@@ -606,25 +606,25 @@ ID_F1 get_f1(ULONG gen_num, ULONG body_id)
 {
 	ID_F1 id_f1;
 
-	float f1 = 0.0; // ×ÛºÏÖµ
-	float p = 0.0; //×¼È·ÂÊ
-	float r = 0.0; //ÕÙ»ØÂÊ
+	float f1 = 0.0; // ç»¼åˆå€¼
+	float p = 0.0; //å‡†ç¡®ç‡
+	float r = 0.0; //å¬å›ç‡
 
 	ULONG Vm_body[VM_NUM] = {0};
-	vector<BRAND_VALUE> brands_value; //¼ÛÖµ¿¿Ç°µÄÆ·ÅÆ
-	vector<USER_VALUE> users_value; //¼ÛÖµ¿¿Ç°µÄÓÃ»§
-	USERS_BRANDS users_brands; //×îÖÕ»ñÈ¡µÄ¼ÛÖµ¿¿Ç°µÄÓÃ»§¿ÉÄÜ»áÂòµÄÆ·ÅÆ
+	vector<BRAND_VALUE> brands_value; //ä»·å€¼é å‰çš„å“ç‰Œ
+	vector<USER_VALUE> users_value; //ä»·å€¼é å‰çš„ç”¨æˆ·
+	USERS_BRANDS users_brands; //æœ€ç»ˆè·å–çš„ä»·å€¼é å‰çš„ç”¨æˆ·å¯èƒ½ä¼šä¹°çš„å“ç‰Œ
 
-	if(!get_Vm_body(gen_num, body_id, Vm_body)) //»ñÈ¡Ö¸¶¨´úÊıÖ¸¶¨¸öÌåµÄVmÖµ
+	if(!get_Vm_body(gen_num, body_id, Vm_body)) //è·å–æŒ‡å®šä»£æ•°æŒ‡å®šä¸ªä½“çš„Vmå€¼
 	{
-		printf("get_Vm_body failed!\n");		
+		printf("get_Vm_body failed!\n");
 		exit(0);
 	}
-	brands_value = get_top_brands_value(Vm_body); //»ñÈ¡¼ÛÖµ¿¿Ç°µÄÆ·ÅÆÁĞ±í	
-	//users_value = get_top_users_value(Vm_body, &brands_value); //»ñÈ¡¼ÛÖµ¿¿Ç°µÄÓÃ»§ÁĞ±í
-	//users_brands = get_top_users_brands(Vm_body, &users_value, &brands_value); //»ñÈ¡µÄ¼ÛÖµ¿¿Ç°µÄÓÃ»§¿ÉÄÜ»áÂòµÄÆ·ÅÆ
-	users_value = get_top_users_brands_ex(Vm_body, &brands_value); //»ñÈ¡µÄ¼ÛÖµ¿¿Ç°µÄÓÃ»§¿ÉÄÜ»áÂòµÄÆ·ÅÆ
-	users_brands = get_top_users_brands(Vm_body, &users_value, &brands_value); //»ñÈ¡µÄ¼ÛÖµ¿¿Ç°µÄÓÃ»§¿ÉÄÜ»áÂòµÄÆ·ÅÆ
+	brands_value = get_top_brands_value(Vm_body); //è·å–ä»·å€¼é å‰çš„å“ç‰Œåˆ—è¡¨
+	//users_value = get_top_users_value(Vm_body, &brands_value); //è·å–ä»·å€¼é å‰çš„ç”¨æˆ·åˆ—è¡¨
+	//users_brands = get_top_users_brands(Vm_body, &users_value, &brands_value); //è·å–çš„ä»·å€¼é å‰çš„ç”¨æˆ·å¯èƒ½ä¼šä¹°çš„å“ç‰Œ
+	users_value = get_top_users_brands_ex(Vm_body, &brands_value); //è·å–çš„ä»·å€¼é å‰çš„ç”¨æˆ·å¯èƒ½ä¼šä¹°çš„å“ç‰Œ
+	users_brands = get_top_users_brands(Vm_body, &users_value, &brands_value); //è·å–çš„ä»·å€¼é å‰çš„ç”¨æˆ·å¯èƒ½ä¼šä¹°çš„å“ç‰Œ
 
 	p = get_precision(&users_brands);
 	r = get_recall(&users_brands);
@@ -653,24 +653,24 @@ vector<USER_VALUE> get_top_users_value(const ULONG *Vm_body, const vector<BRAND_
 		USER_VALUE user_value;
 		user_value.user_id = iter1->first;
 		for(USER_LOGS::iterator iter2 = iter1->second.begin(); iter2 != iter1->second.end(); iter2++)
-		{		
-			if(find_wel_brands(&brands_value, iter2->brand_id)) //Èç¹ûÓÃ»§·ÃÎÊµÄÊÇÊÜ»¶Ó­µÄÆ·ÅÆ£¬Òª¿¼ÂÇÏÂÃæµÄ¹«Ê½
+		{
+			if(find_wel_brands(&brands_value, iter2->brand_id)) //å¦‚æœç”¨æˆ·è®¿é—®çš„æ˜¯å—æ¬¢è¿çš„å“ç‰Œï¼Œè¦è€ƒè™‘ä¸‹é¢çš„å…¬å¼
 			{
-				sum_val += pow(Vm_body[type_Vm[iter2->type]], 2) / Vm_body[type_Vm[WEL_BRAND]]; //ÕâÑù×öµÄÄ¿µÄÖ÷Òª¿¼ÂÇÓÃ»§ÊÇ·ñ»áÏ²»¶ÊÜ»¶Ó­µÄÆ·ÅÆ
+				sum_val += pow(Vm_body[type_Vm[iter2->type]], 2) / Vm_body[type_Vm[WEL_BRAND]]; //è¿™æ ·åšçš„ç›®çš„ä¸»è¦è€ƒè™‘ç”¨æˆ·æ˜¯å¦ä¼šå–œæ¬¢å—æ¬¢è¿çš„å“ç‰Œ
 			}
 			else
 			{
-				sum_val += Vm_body[type_Vm[iter2->type]]; //¶Ô´ËÓÃ»§µÄËùÓĞ²Ù×÷½øĞĞÀÛ¼Ó£¬ÔİÊ±²»¿¼ÂÇÊÜ»¶Ó­Æ·ÅÆ
-			}			
+				sum_val += Vm_body[type_Vm[iter2->type]]; //å¯¹æ­¤ç”¨æˆ·çš„æ‰€æœ‰æ“ä½œè¿›è¡Œç´¯åŠ ï¼Œæš‚æ—¶ä¸è€ƒè™‘å—æ¬¢è¿å“ç‰Œ
+			}
 		}
 		user_value.val = sum_val;
 		users_value.push_back(user_value);
 	}
-	sort(users_value.begin(), users_value.end(), compare_user_value); //°´ÕÕÆ·ÅÆ¼ÛÖµ´Ó´óµ½Ğ¡ÅÅĞò
+	sort(users_value.begin(), users_value.end(), compare_user_value); //æŒ‰ç…§å“ç‰Œä»·å€¼ä»å¤§åˆ°å°æ’åº
 
-	int size = users_value.size(); //ËùÓĞÓÃ»§¸öÊı
-	int top = sqrt(size); //ÒªÑ¡È¡µÄÓĞ¼ÛÖµµÄÓÃ»§Êı
-	users_value.resize(187); //È¡Ç°top¸ö
+	int size = users_value.size(); //æ‰€æœ‰ç”¨æˆ·ä¸ªæ•°
+	int top = sqrt(size); //è¦é€‰å–çš„æœ‰ä»·å€¼çš„ç”¨æˆ·æ•°
+	users_value.resize(187); //å–å‰topä¸ª
 	return users_value;
 }
 
@@ -681,13 +681,13 @@ USERS_BRANDS get_top_users_brands(const ULONG *Vm_body, const vector<USER_VALUE>
 	BRAND_VALUE_EX brand_value_ex;
 	ULONG temp_brand_id = 0;
 	for(vector<USER_VALUE>::const_iterator iter1 = users_value->begin(); iter1 != users_value->end(); iter1 ++)
-	{		
+	{
 		bool found = false;
-		vector<BRAND_VALUE> brands_value = *pbrands_value; //ÊÜ»¶Ó­µÄÆ·ÅÆÁĞ±í
+		vector<BRAND_VALUE> brands_value = *pbrands_value; //å—æ¬¢è¿çš„å“ç‰Œåˆ—è¡¨
 
 		USER_LOGS user_logs = users_logs_pre[iter1->user_id];
-		sort(user_logs.begin(), user_logs.end(), compare_brand_id_ex); //°ÑÆ·ÅÆ´ÓĞ¡µ½´óÅÅĞò£¬Ä¿µÄÊÇ°ÑÏàÍ¬Æ·ÅÆµÄÓÃ»§ÈÕÖ¾·ÅÔÚÒ»Æğ
-		
+		sort(user_logs.begin(), user_logs.end(), compare_brand_id_ex); //æŠŠå“ç‰Œä»å°åˆ°å¤§æ’åºï¼Œç›®çš„æ˜¯æŠŠç›¸åŒå“ç‰Œçš„ç”¨æˆ·æ—¥å¿—æ”¾åœ¨ä¸€èµ·
+
 		memset(&brand_value_ex, 0 ,sizeof(BRAND_VALUE_EX));
 
 		brand_value_ex.id = user_logs[0].brand_id;
@@ -695,7 +695,7 @@ USERS_BRANDS get_top_users_brands(const ULONG *Vm_body, const vector<USER_VALUE>
 		{
 			brand_value_ex.value = pow(Vm_body[type_Vm[user_logs[0].type]], 2) / Vm_body[type_Vm[WEL_BRAND]];
 			found = true;
-		}		
+		}
 		else
 		{
 			brand_value_ex.value = Vm_body[type_Vm[user_logs[0].type]];
@@ -707,21 +707,21 @@ USERS_BRANDS get_top_users_brands(const ULONG *Vm_body, const vector<USER_VALUE>
 
 		for(USER_LOGS::iterator iter2 = user_logs.begin()+1; iter2 != user_logs.end(); iter2++)
 		{
-			if(iter2->brand_id != temp_brand_id) //Ã¿´ÎÓö¼ûºÍÉÏ´Î²»ÏàÍ¬µÄÆ·ÅÆID¾ÍÖØĞÂ¼ÆËã
+			if(iter2->brand_id != temp_brand_id) //æ¯æ¬¡é‡è§å’Œä¸Šæ¬¡ä¸ç›¸åŒçš„å“ç‰ŒIDå°±é‡æ–°è®¡ç®—
 			{
-				brands_value_ex.push_back(brand_value_ex); //´æ´¢´ËÓÃ»§µÄ¸÷¸öÆ·ÅÆ¼ÛÖµÁĞ±í
+				brands_value_ex.push_back(brand_value_ex); //å­˜å‚¨æ­¤ç”¨æˆ·çš„å„ä¸ªå“ç‰Œä»·å€¼åˆ—è¡¨
 
 				brand_value_ex.id = iter2->brand_id;
 				if(find_wel_brands(&brands_value, brand_value_ex.id))
 				{
 					brand_value_ex.value = pow(Vm_body[type_Vm[iter2->type]], 2) / Vm_body[type_Vm[WEL_BRAND]];
 					found = true;
-				}		
+				}
 				else
 				{
 					brand_value_ex.value = Vm_body[type_Vm[iter2->type]];
 					found = false;
-				}			
+				}
 
 				//brand_value_ex.value = Vm_body[type_Vm[iter2->type]];
 				temp_brand_id = iter2->brand_id;
@@ -738,20 +738,20 @@ USERS_BRANDS get_top_users_brands(const ULONG *Vm_body, const vector<USER_VALUE>
 			brand_value_ex.value += Vm_body[type_Vm[iter2->type]];
 		}
 
-		/*for(vector<BRAND_VALUE>::iterator iter = brands_value.begin(); iter != brands_value.end(); iter ++) //×öÊÜ»¶Ó­µÄÆ·ÅÆµÄÍÆ¼ö
+		/*for(vector<BRAND_VALUE>::iterator iter = brands_value.begin(); iter != brands_value.end(); iter ++) //åšå—æ¬¢è¿çš„å“ç‰Œçš„æ¨è
 		{
-			if(!iter->visit) //Èç¹ûÓÃ»§Ã»ÓĞ·ÃÎÊ´ËÆ·ÅÆ£¬¾Í¸øÓÃ»§ÍÆ¼ö´ËÆ·ÅÆ£¬µ±È»´ËÆ·ÅÆÊÇ·ñÄÜÍÆ¼öÉÏÈ¥£¬»¹µÃ¿´ÅÅÃû
+			if(!iter->visit) //å¦‚æœç”¨æˆ·æ²¡æœ‰è®¿é—®æ­¤å“ç‰Œï¼Œå°±ç»™ç”¨æˆ·æ¨èæ­¤å“ç‰Œï¼Œå½“ç„¶æ­¤å“ç‰Œæ˜¯å¦èƒ½æ¨èä¸Šå»ï¼Œè¿˜å¾—çœ‹æ’å
 			{
 				brand_value_ex.id = iter->id;
 				brand_value_ex.value = Vm_body[type_Vm[WEL_BRAND]];
 				brands_value_ex.push_back(brand_value_ex);
-			}			
+			}
 		}*/
-		sort(brands_value_ex.begin(), brands_value_ex.end(), compare_brand_value_ex); //ÏÈ°´ÕÕÆ·ÅÆ¼ÛÖµ´Ó´óµ½Ğ¡ÅÅĞò
+		sort(brands_value_ex.begin(), brands_value_ex.end(), compare_brand_value_ex); //å…ˆæŒ‰ç…§å“ç‰Œä»·å€¼ä»å¤§åˆ°å°æ’åº
 		int size = brands_value_ex.size();
 		int top = sqrt(size);
 		top = get_pre_brand_num(iter1->user_id, size);
-		brands_value_ex.resize(top); //È¡Ç°top¸ö
+		brands_value_ex.resize(top); //å–å‰topä¸ª
 		users_brands[iter1->user_id] = brands_value_ex;
 	}
 	return users_brands;
@@ -772,7 +772,7 @@ float get_precision(const USERS_BRANDS *users_brands)
 			}
 		}
 	}
-	p = (float)sum_hit_brand/sum_p_brand;	
+	p = (float)sum_hit_brand/sum_p_brand;
 	return p;
 }
 
@@ -795,31 +795,31 @@ float get_recall(const USERS_BRANDS *users_brands)
 			}
 		}
 	}
-	r = (float)sum_hit_brand/sum_b_brand;	
+	r = (float)sum_hit_brand/sum_b_brand;
 	return r;
 }
 
 void create_next_generation(ULONG gen_num, vector<ID_F1> *ids_f1)
 {
-	map<ULONG, ULONGS> top_Vms = get_top_Vms(gen_num, ids_f1); //»ñÈ¡ÅÅÔÚÇ°ÃæµÄVmµÄ·¶Î§Öµ£¬¼´¸¸´ú
-	
-	map<ULONG, ULONGS> var_top_Vms = get_var_champ(&top_Vms); //»ñÈ¡±äÒìºóµÄ¸öÌå
+	map<ULONG, ULONGS> top_Vms = get_top_Vms(gen_num, ids_f1); //è·å–æ’åœ¨å‰é¢çš„Vmçš„èŒƒå›´å€¼ï¼Œå³çˆ¶ä»£
 
-	cross_champ(&var_top_Vms, gen_num); //½øĞĞ¸öÌå¼äÈ¾É«Ìå½»²æ²¢²úÉúÏÂÒ»´ú¸öÌå
+	map<ULONG, ULONGS> var_top_Vms = get_var_champ(&top_Vms); //è·å–å˜å¼‚åçš„ä¸ªä½“
+
+	cross_champ(&var_top_Vms, gen_num); //è¿›è¡Œä¸ªä½“é—´æŸ“è‰²ä½“äº¤å‰å¹¶äº§ç”Ÿä¸‹ä¸€ä»£ä¸ªä½“
 	return;
 }
 
 map<ULONG, ULONGS> get_top_Vms(ULONG gen_num, vector<ID_F1> *ids_f1)
-{	
+{
 	map<ULONG, ULONGS> top_Vms;
 	for(vector<ID_F1>::iterator iter = ids_f1->begin(); iter != ids_f1->end(); iter++)
 	{
 		ULONGS Vm_body;
 
 		char filename[MAX_PATH] = {0};
-		char str_gen_num[10] = {0}, str_body_id[10] = {0};		
+		char str_gen_num[10] = {0}, str_body_id[10] = {0};
 
-		strcpy(filename, "GA_record\\"), strcat(filename, "generation_"), _itoa(gen_num, str_gen_num, 10), strcat(filename, str_gen_num), 
+		strcpy(filename, "GA_record\\"), strcat(filename, "generation_"), _itoa(gen_num, str_gen_num, 10), strcat(filename, str_gen_num),
 		strcat(filename, "\\"), _itoa(iter->body_id, str_body_id, 10), strcat(filename, str_body_id), strcat(filename, ".txt");
 
 		FILE* file = fopen(filename, "r");
@@ -830,11 +830,11 @@ map<ULONG, ULONGS> get_top_Vms(ULONG gen_num, vector<ID_F1> *ids_f1)
 			getch();
 			exit(0);
 		}
-				
+
 		for(int i = 1; i< VM_NUM-1; i++)
 		{
 			ULONG range = 0;
-			if(fscanf(file, "%d\n", &range) != 1)//¶ÁÈ¡µÄ¶¼ÊÇVmµÄ·¶Î§Öµ
+			if(fscanf(file, "%d\n", &range) != 1)//è¯»å–çš„éƒ½æ˜¯Vmçš„èŒƒå›´å€¼
 			{
 				printf("\"%s\" content is not correct!\n", filename);
 				printf("press any key to quit...");
@@ -842,17 +842,17 @@ map<ULONG, ULONGS> get_top_Vms(ULONG gen_num, vector<ID_F1> *ids_f1)
 				exit(0);
 			}
 			Vm_body.push_back(range);
-		}		
-	
+		}
+
  		top_Vms[iter->body_id] = Vm_body;
 		fclose(file);
 	}
 
 	int count = 0 ;
-	new_bodys.clear();	
+	new_bodys.clear();
 	for(map<ULONG, ULONGS>::iterator iter_t = top_Vms.begin(); iter_t != top_Vms.end(); iter_t++, count++)
 	{
-		new_bodys[count] = iter_t->second;  //°ÑÅÅÔÚÇ°ÃæµÄ¸¸¸öÌå·ÅÔÚÏÂÒ»´úµÄĞÂ¸öÌåÖĞ
+		new_bodys[count] = iter_t->second;  //æŠŠæ’åœ¨å‰é¢çš„çˆ¶ä¸ªä½“æ”¾åœ¨ä¸‹ä¸€ä»£çš„æ–°ä¸ªä½“ä¸­
 	}
 
 	return top_Vms;
@@ -865,7 +865,7 @@ map<ULONG, ULONGS> get_var_champ(const map<ULONG, ULONGS> *top_Vms)
 	for(map<ULONG, ULONGS>::iterator iter1 = top_Vms_ret.begin(); iter1 != top_Vms_ret.end(); iter1++)
 	{
 		for(ULONGS::iterator iter2 = iter1->second.begin(); iter2 != iter1->second.end(); iter2++)
-		{		
+		{
 			int index = 0;
 			for(int k=0;k<gene_num[index];k++)
 			{
@@ -879,11 +879,11 @@ map<ULONG, ULONGS> get_var_champ(const map<ULONG, ULONGS> *top_Vms)
 }
 
 void cross_champ(const map<ULONG, ULONGS> *var_top_Vms, ULONG gen_num)
-{	
+{
 	int top_size = var_top_Vms->size();
 	int count = 0;
 	int first = 0, second = 0;
-			
+
 	map<ULONG, ULONGS> var_top_bodys;
 	for(map<ULONG, ULONGS>::const_iterator iter_t = var_top_Vms->begin(); iter_t != var_top_Vms->end(); iter_t++, count++)
 	{
@@ -893,11 +893,11 @@ void cross_champ(const map<ULONG, ULONGS> *var_top_Vms, ULONG gen_num)
 	{
 		first=rand()%top_size;
 		second=rand()%top_size;
-		if(first==second)continue;				
+		if(first==second)continue;
 
 		ULONGS first_body = var_top_bodys[first];
 		ULONGS second_body = var_top_bodys[second];
-		for(int i = 0; i< VM_NUM-2; i++)	
+		for(int i = 0; i< VM_NUM-2; i++)
 		{
 			if(rand()%RAND_MAX < PC*RAND_MAX)
 			{
@@ -908,7 +908,7 @@ void cross_champ(const map<ULONG, ULONGS> *var_top_Vms, ULONG gen_num)
 		}
 		new_bodys[count] = first_body;
 		new_bodys[count+1] = second_body;
-		count+=2;		
+		count+=2;
 	}
 
 	FILE *file = NULL;
@@ -916,14 +916,14 @@ void cross_champ(const map<ULONG, ULONGS> *var_top_Vms, ULONG gen_num)
 	char str_gen_num[10] = {0};
 	char str_body_id[10] = {0};
 	for(map<ULONG, ULONGS>::iterator iter1 = new_bodys.begin(); iter1 != new_bodys.end(); iter1++)
-	{		
-		strcpy(filename, "GA_record\\"), strcat(filename, "generation_"), _itoa(gen_num+1, str_gen_num, 10), strcat(filename, str_gen_num), _mkdir(filename), 
+	{
+		strcpy(filename, "GA_record\\"), strcat(filename, "generation_"), _itoa(gen_num+1, str_gen_num, 10), strcat(filename, str_gen_num), _mkdir(filename),
 		strcat(filename, "\\"), _itoa(iter1->first+1, str_body_id, 10), strcat(filename, str_body_id), strcat(filename, ".txt");
 		file = fopen(filename, "w");
 		for(ULONGS::iterator iter2 = iter1->second.begin(); iter2 != iter1->second.end(); iter2++)
 		{
 			int val = (*iter2);
-			fprintf(file, "%d\n", val); //°Ñ¸÷¸ö¸öÌåÖµĞ´ÈëÎÄ¼ş
+			fprintf(file, "%d\n", val); //æŠŠå„ä¸ªä¸ªä½“å€¼å†™å…¥æ–‡ä»¶
 		}
 		fclose(file);
 	}
@@ -945,7 +945,7 @@ void write_gen_top_body_f1(ULONG gen_num, ID_F1 id_f1)
 	}
 
 	SYSTEMTIME st;
-	::GetLocalTime(&st);	
+	::GetLocalTime(&st);
 	fprintf(file,"%5d\t%5d\t%2.2f\t%2.2f\t%2.2f\t", gen_num, id_f1.body_id, id_f1.p_val*100, id_f1.r_val*100, id_f1.f1_val*100);
 	fprintf(file,"time: %2d : %2d : %2d\n", st.wHour, st.wMinute, st.wSecond);
 	fclose(file);
@@ -953,14 +953,14 @@ void write_gen_top_body_f1(ULONG gen_num, ID_F1 id_f1)
 
 void get_best_Vm_ex()
 {
-	int sum_buy_rea = 0; //µÚËÄ¸öÔÂ¹ºÂò×ÜÊı
-	int sum_buy_pre = 0; //Ç°Èı¸öÔÂ¹ºÂò×ÜÊı
-	int sum_col_pre = 0; //Ç°Èı¸öÔÂÊÕ²Ø×ÜÊı
-	int sum_car_pre = 0; //Ç°Èı¸öÔÂ¹ºÎï³µ×ÜÊı
+	int sum_buy_rea = 0; //ç¬¬å››ä¸ªæœˆè´­ä¹°æ€»æ•°
+	int sum_buy_pre = 0; //å‰ä¸‰ä¸ªæœˆè´­ä¹°æ€»æ•°
+	int sum_col_pre = 0; //å‰ä¸‰ä¸ªæœˆæ”¶è—æ€»æ•°
+	int sum_car_pre = 0; //å‰ä¸‰ä¸ªæœˆè´­ç‰©è½¦æ€»æ•°
 
-	int sum_buy_pre_rea = 0; //Ç°Èı¸öÔÂÖĞÏàÍ¬Æ·ÅÆ¹ºÂòÁ¿ºÍµÚËÄ¸öÔÂÏàÍ¬Æ·ÅÆµÄ¹ºÂòÁ¿µÄ½»¼¯
-	int sum_col_pre_rea = 0; //Ç°Èı¸öÔÂÖĞÏàÍ¬Æ·ÅÆÊÕ²ØÁ¿ºÍµÚËÄ¸öÔÂÏàÍ¬Æ·ÅÆµÄ¹ºÂòÁ¿µÄ½»¼¯
-	int sum_car_pre_rea = 0; //Ç°Èı¸öÔÂÖĞÏàÍ¬Æ·ÅÆ¹ºÎï³µÁ¿ºÍµÚËÄ¸öÔÂÏàÍ¬Æ·ÅÆµÄ¹ºÂòÁ¿µÄ½»¼¯
+	int sum_buy_pre_rea = 0; //å‰ä¸‰ä¸ªæœˆä¸­ç›¸åŒå“ç‰Œè´­ä¹°é‡å’Œç¬¬å››ä¸ªæœˆç›¸åŒå“ç‰Œçš„è´­ä¹°é‡çš„äº¤é›†
+	int sum_col_pre_rea = 0; //å‰ä¸‰ä¸ªæœˆä¸­ç›¸åŒå“ç‰Œæ”¶è—é‡å’Œç¬¬å››ä¸ªæœˆç›¸åŒå“ç‰Œçš„è´­ä¹°é‡çš„äº¤é›†
+	int sum_car_pre_rea = 0; //å‰ä¸‰ä¸ªæœˆä¸­ç›¸åŒå“ç‰Œè´­ç‰©è½¦é‡å’Œç¬¬å››ä¸ªæœˆç›¸åŒå“ç‰Œçš„è´­ä¹°é‡çš„äº¤é›†
 	for(map<ULONG, BRAND_LOGS>::iterator iter1 = brands_logs_rea.begin(); iter1 != brands_logs_rea.end(); iter1++)
 	{
 		for(BRAND_LOGS:: iterator iter2 = iter1->second.begin(); iter2 != iter1->second.end(); iter2++)
@@ -1016,7 +1016,7 @@ void get_best_Vm_ex()
 			}
 		}
 	}
-	
+
 	float buy_rat = (float)sum_buy_pre_rea/sum_buy_pre;
 	float col_rat = (float)sum_col_pre_rea/sum_col_pre;
 	float car_rat = (float)sum_car_pre_rea/sum_car_pre;
@@ -1033,7 +1033,7 @@ void get_users_buy_rat()
 		{
 			if(iter2->type == BUY)
 			{
-				sum_buy++;				
+				sum_buy++;
 			}
 			sum++;
 		}
@@ -1067,13 +1067,13 @@ vector<USER_VALUE> get_top_users_brands_ex(const ULONG *Vm_body, const vector<BR
 	USER_LOGS user_logs;
 	bool found;
 	for(map<ULONG, USER_LOGS>::iterator iter1 = users_logs_pre.begin(); iter1 != users_logs_pre.end(); iter1++)
-	{		
+	{
 		found = false;
-		brands_value = *pbrands_value; //ÊÜ»¶Ó­µÄÆ·ÅÆÁĞ±í
+		brands_value = *pbrands_value; //å—æ¬¢è¿çš„å“ç‰Œåˆ—è¡¨
 
 		user_logs = iter1->second;
-		sort(user_logs.begin(), user_logs.end(), compare_brand_id_ex); //°ÑÆ·ÅÆ´ÓĞ¡µ½´óÅÅĞò£¬Ä¿µÄÊÇ°ÑÏàÍ¬Æ·ÅÆµÄÓÃ»§ÈÕÖ¾·ÅÔÚÒ»Æğ
-		
+		sort(user_logs.begin(), user_logs.end(), compare_brand_id_ex); //æŠŠå“ç‰Œä»å°åˆ°å¤§æ’åºï¼Œç›®çš„æ˜¯æŠŠç›¸åŒå“ç‰Œçš„ç”¨æˆ·æ—¥å¿—æ”¾åœ¨ä¸€èµ·
+
 		memset(&brand_value_ex, 0 ,sizeof(BRAND_VALUE_EX));
 
 		brand_value_ex.id = user_logs[0].brand_id;
@@ -1081,36 +1081,36 @@ vector<USER_VALUE> get_top_users_brands_ex(const ULONG *Vm_body, const vector<BR
 		{
 			brand_value_ex.value = pow(Vm_body[type_Vm[user_logs[0].type]], 2) / Vm_body[type_Vm[WEL_BRAND]];
 			found = true;
-		}		
+		}
 		else
 		{
 			brand_value_ex.value = Vm_body[type_Vm[user_logs[0].type]];
 			found = false;
 		}
-		
+
 		temp_brand_id = user_logs[0].brand_id;
 
 		for(USER_LOGS::iterator iter2 = user_logs.begin()+1; iter2 != user_logs.end(); iter2++)
-		{			
+		{
 			if(iter2->type<CLICK || iter2->type>SHOP_CART)
 			{
 				printf("%d\n", iter1->first);
 			}
-			if(iter2->brand_id != temp_brand_id) //Ã¿´ÎÓö¼ûºÍÉÏ´Î²»ÏàÍ¬µÄÆ·ÅÆID¾ÍÖØĞÂ¼ÆËã
+			if(iter2->brand_id != temp_brand_id) //æ¯æ¬¡é‡è§å’Œä¸Šæ¬¡ä¸ç›¸åŒçš„å“ç‰ŒIDå°±é‡æ–°è®¡ç®—
 			{
-				brands_value_ex.push_back(brand_value_ex); //´æ´¢´ËÓÃ»§µÄ¸÷¸öÆ·ÅÆ¼ÛÖµÁĞ±í
+				brands_value_ex.push_back(brand_value_ex); //å­˜å‚¨æ­¤ç”¨æˆ·çš„å„ä¸ªå“ç‰Œä»·å€¼åˆ—è¡¨
 
 				brand_value_ex.id = iter2->brand_id;
 				if(find_wel_brands(&brands_value, brand_value_ex.id))
 				{
 					brand_value_ex.value = pow(Vm_body[type_Vm[iter2->type]], 2) / Vm_body[type_Vm[WEL_BRAND]];
 					found = true;
-				}		
+				}
 				else
 				{
 					brand_value_ex.value = Vm_body[type_Vm[iter2->type]];
 					found = false;
-				}			
+				}
 
 				//brand_value_ex.value = Vm_body[type_Vm[iter2->type]];
 				temp_brand_id = iter2->brand_id;
@@ -1127,11 +1127,11 @@ vector<USER_VALUE> get_top_users_brands_ex(const ULONG *Vm_body, const vector<BR
 			brand_value_ex.value += Vm_body[type_Vm[iter2->type]];
 		}
 
-		sort(brands_value_ex.begin(), brands_value_ex.end(), compare_brand_value_ex); //ÏÈ°´ÕÕÆ·ÅÆ¼ÛÖµ´Ó´óµ½Ğ¡ÅÅĞò
+		sort(brands_value_ex.begin(), brands_value_ex.end(), compare_brand_value_ex); //å…ˆæŒ‰ç…§å“ç‰Œä»·å€¼ä»å¤§åˆ°å°æ’åº
 		int size = brands_value_ex.size();
 		int top = sqrt(size);
 		top = get_pre_brand_num(iter1->first, size);
-		brands_value_ex.resize(top); //È¡Ç°top¸ö
+		brands_value_ex.resize(top); //å–å‰topä¸ª
 		users_brands[iter1->first] = brands_value_ex;
 	}
 
@@ -1151,10 +1151,10 @@ vector<USER_VALUE> get_top_users_brands_ex(const ULONG *Vm_body, const vector<BR
 		}
 		users_value.push_back(user_value);
 	}
-	sort(users_value.begin(), users_value.end(), compare_user_value); //°´ÕÕÆ·ÅÆ¼ÛÖµ´Ó´óµ½Ğ¡ÅÅĞò
+	sort(users_value.begin(), users_value.end(), compare_user_value); //æŒ‰ç…§å“ç‰Œä»·å€¼ä»å¤§åˆ°å°æ’åº
 
-	int size = users_value.size(); //ËùÓĞÓÃ»§¸öÊı
-	int top = sqrt(size); //ÒªÑ¡È¡µÄÓĞ¼ÛÖµµÄÓÃ»§Êı
-	users_value.resize(187); //È¡Ç°top¸ö
+	int size = users_value.size(); //æ‰€æœ‰ç”¨æˆ·ä¸ªæ•°
+	int top = sqrt(size); //è¦é€‰å–çš„æœ‰ä»·å€¼çš„ç”¨æˆ·æ•°
+	users_value.resize(187); //å–å‰topä¸ª
 	return users_value;
 }
